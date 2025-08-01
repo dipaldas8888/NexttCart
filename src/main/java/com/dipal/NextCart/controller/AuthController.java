@@ -5,7 +5,6 @@ package com.dipal.NextCart.controller;
 import com.dipal.NextCart.dto.LoginDTO;
 import com.dipal.NextCart.dto.Response;
 import com.dipal.NextCart.dto.UserDTO;
-import com.dipal.NextCart.dto.UserDto;
 import com.dipal.NextCart.service.interfce.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
