@@ -7,13 +7,13 @@ import com.dipal.NextCart.dto.UserDTO;
 import com.dipal.NextCart.entity.User;
 import com.dipal.NextCart.enums.UserRole;
 import com.dipal.NextCart.exception.InvalidCredentialsException;
+import com.dipal.NextCart.exception.NotFoundException;
 import com.dipal.NextCart.mapper.EntityDtoMapper;
 import com.dipal.NextCart.repository.UserRepo;
 import com.dipal.NextCart.security.JwtUtils;
 import com.dipal.NextCart.service.interfce.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,7 +21,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -67,11 +66,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Response loginUser(LoginDTO loginRequest) {
+        User user = userRepo.findByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new NotFoundException("Email not found"));
 
-        User user = userRepo.findByEmail(loginRequest.getEmail()).orElseThrow(()-> new ChangeSetPersister.NotFoundException("Email not found"));
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())){
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new InvalidCredentialsException("Password does not match");
         }
+
         String token = jwtUtils.generateToken(user);
 
         return Response.builder()
@@ -82,6 +83,7 @@ public class UserServiceImpl implements UserService {
                 .role(user.getRole().name())
                 .build();
     }
+
 
     @Override
     public Response getAllUsers() {
