@@ -47,7 +47,6 @@ public class OrderItemServiceImpl implements OrderItemService {
     public Response placeOrder(OrderRequest orderRequest) {
 
         User user = userService.getLoginUser();
-        //map order request items to order entities
 
         List<OrderItem> orderItems = orderRequest.getItems().stream().map(orderItemRequest -> {
             Product product = productRepo.findById(orderItemRequest.getProductId())
