@@ -25,7 +25,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/auth/**", "/category/get**", "/product/get**", "/order/create").permitAll()  // Adjust based on public endpoints
-                        .requestMatchers("/category/create", "/category/update/**", "/category/delete/**", "/product/create", "/product/update", "/product/delete/**", "/order/update-item-status/**", "/order/filter").hasAuthority("ADMIN")
+                        .requestMatchers("/category/create", "/category/update/**", "/category/delete/**", "/product/create", "/product/update", "/product/delete/**","/user/**", "/order/update-item-status/**", "/order/filter").hasAuthority("ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(firebaseAuthFilter, UsernamePasswordAuthenticationFilter.class);

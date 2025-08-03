@@ -23,21 +23,17 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Name is required")
     private String name;
 
     @Column(unique = true)
     @NotBlank(message = "Email is required")
     private String email;
 
-    @NotBlank(message = "Password number is required")
-    private String password;
 
     @Column(unique = true)  // Add this for uniqueness
     private String firebaseUid;
 
     @Column(name = "phone_number")
-    @NotBlank(message = "Phone number is required")
     private  String phoneNumber;
 
     private UserRole role;
