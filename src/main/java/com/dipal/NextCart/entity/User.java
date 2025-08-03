@@ -33,6 +33,9 @@ public class User {
     @NotBlank(message = "Password number is required")
     private String password;
 
+    @Column(unique = true)  // Add this for uniqueness
+    private String firebaseUid;
+
     @Column(name = "phone_number")
     @NotBlank(message = "Phone number is required")
     private  String phoneNumber;

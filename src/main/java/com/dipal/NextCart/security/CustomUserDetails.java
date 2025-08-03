@@ -16,20 +16,9 @@ import java.util.List;
 public class CustomUserDetails implements UserDetails {
 
     private User user;
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(user.getRole().name()));
-    }
 
-    @Override
-    public String getPassword() {
-        return user.getPassword();
-    }
 
-    @Override
-    public String getUsername() {
-        return user.getEmail();
-    }
+    
 
     @Override
     public boolean isAccountNonExpired() {
@@ -49,5 +38,21 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Assuming you add a way to get role from claims or DB
+        String role = user.getRole() != null ? user.getRole().name() : "USER";
+        return List.of(new SimpleGrantedAuthority(role));
+    }
+    @Override
+    public String getUsername() {
+        return user.getFirebaseUid() != null ? user.getFirebaseUid() : user.getEmail();  // Add firebaseUid to User entity if needed
+    }
+
+    // Remove getPassword() as Firebase handles it (return null or empty)
+    @Override
+    public String getPassword() {
+        return "";
     }
 }
