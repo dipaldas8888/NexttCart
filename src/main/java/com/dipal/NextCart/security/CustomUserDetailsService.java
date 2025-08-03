@@ -25,11 +25,9 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseGet(() -> {
                     try {
                         UserRecord firebaseUser = FirebaseAuth.getInstance().getUser(username);  // Or getUserByEmail
-                        // Sync: Create new User in DB
                         User newUser = new User();
                         newUser.setEmail(firebaseUser.getEmail());
                         newUser.setFirebaseUid(firebaseUser.getUid());
-                        // Set role from claims if needed
                         userRepo.save(newUser);
                         return CustomUserDetails.builder().user(newUser).build();
                     } catch (FirebaseAuthException e) {

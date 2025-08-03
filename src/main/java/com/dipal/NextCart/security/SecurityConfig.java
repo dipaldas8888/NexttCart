@@ -31,5 +31,4 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
-    // Remove passwordEncoder() and authenticationManager() if not needed
 }

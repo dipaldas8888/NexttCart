@@ -41,7 +41,6 @@ public class CustomUserDetails implements UserDetails {
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Assuming you add a way to get role from claims or DB
         String role = user.getRole() != null ? user.getRole().name() : "USER";
         return List.of(new SimpleGrantedAuthority(role));
     }
@@ -50,7 +49,6 @@ public class CustomUserDetails implements UserDetails {
         return user.getFirebaseUid() != null ? user.getFirebaseUid() : user.getEmail();  // Add firebaseUid to User entity if needed
     }
 
-    // Remove getPassword() as Firebase handles it (return null or empty)
     @Override
     public String getPassword() {
         return "";

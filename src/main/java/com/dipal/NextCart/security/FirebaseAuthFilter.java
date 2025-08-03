@@ -38,13 +38,10 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
                 String uid = decodedToken.getUid();
                 Map<String, Object> claims = decodedToken.getClaims();
 
-                // Load user details (from DB or Firebase)
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(uid);  // Update to use UID or email
 
-                // Custom claims for role
                 String role = (String) claims.getOrDefault("role", "USER");  // Default to USER if no claim
 
-                // Set authentication with authorities based on role
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities()  // Update authorities based on role claim
                 );

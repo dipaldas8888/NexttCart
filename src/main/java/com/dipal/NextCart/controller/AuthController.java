@@ -22,13 +22,11 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<Response> registerUser(@RequestBody UserDTO registrationRequest){
-        // Delegate to Firebase via UserService
         return ResponseEntity.ok(userService.registerUserWithFirebase(registrationRequest));
     }
 
     @PostMapping("/login")
     public ResponseEntity<Response> loginUser(@RequestBody LoginDTO loginRequest){
-        // Login is client-side; perhaps remove or return Firebase config
         throw new UnsupportedOperationException("Use client-side Firebase login");
     }
 }

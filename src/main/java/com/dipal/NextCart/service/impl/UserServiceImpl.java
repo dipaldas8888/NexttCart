@@ -29,9 +29,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepo userRepo;
     private final EntityDtoMapper entityDtoMapper;
-    // Remove: PasswordEncoder, JwtUtils
 
-    // New: Inject if you have FirebaseUserService from previous advice; otherwise, inline Admin SDK calls
 
     @Override
     public Response getAllUsers() {
@@ -82,7 +80,6 @@ public class UserServiceImpl implements UserService {
                     .setEmailVerified(false);
             UserRecord firebaseUser = FirebaseAuth.getInstance().createUser(request);
 
-            // Sync to DB
             UserRole role = registrationRequest.getRole() != null && registrationRequest.getRole().equalsIgnoreCase("ADMIN") ? UserRole.ADMIN : UserRole.USER;
             User user = User.builder()
                     .name(registrationRequest.getName())
@@ -93,7 +90,6 @@ public class UserServiceImpl implements UserService {
                     .build();
             User savedUser = userRepo.save(user);
 
-            // Set custom claim for role
             Map<String, Object> claims = new HashMap<>();
             claims.put("role", role.name());
             FirebaseAuth.getInstance().setCustomUserClaims(firebaseUser.getUid(), claims);
@@ -110,7 +106,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    // New: Set role via custom claims
     @Override
     public Response setUserRole(String email, String role) {
         try {
@@ -119,7 +114,6 @@ public class UserServiceImpl implements UserService {
             claims.put("role", role.toUpperCase());  // e.g., "ADMIN"
             FirebaseAuth.getInstance().setCustomUserClaims(firebaseUser.getUid(), claims);
 
-            // Sync role to DB
             User dbUser = userRepo.findByEmail(email)
                     .orElseThrow(() -> new NotFoundException("User not found"));
             dbUser.setRole(UserRole.valueOf(role.toUpperCase()));
@@ -135,6 +129,5 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    // Deprecated or remove: public Response registerUser(UserDTO registrationRequest) { ... }
-    // Deprecated or remove: public Response loginUser(LoginDTO loginRequest) { ... }
+
 }
