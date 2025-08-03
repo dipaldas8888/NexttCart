@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService {
             UserRecord.CreateRequest request = new UserRecord.CreateRequest()
                     .setEmail(registrationRequest.getEmail())
                     .setDisplayName(registrationRequest.getName())
-                    .setPhoneNumber(registrationRequest.getPhoneNumber())
+//                    .setPhoneNumber(registrationRequest.getPhoneNumber())
                     .setPassword(registrationRequest.getPassword())  // Only if allowing backend password set; otherwise, skip and let client handle
                     .setEmailVerified(false);
             UserRecord firebaseUser = FirebaseAuth.getInstance().createUser(request);
