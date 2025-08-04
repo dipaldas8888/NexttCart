@@ -6,6 +6,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.io.File;
+import java.nio.file.Paths;
+
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
@@ -14,9 +17,15 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry
-                .addResourceHandler("/uploads/images/**")
-                .addResourceLocations("file:" + uploadDir + "/");
+        // Ensure the path ends with a separator
+        String path = Paths.get(uploadDir).toAbsolutePath().toString();
+        if (!path.endsWith(File.separator)) {
+            path += File.separator;
+        }
+
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:" + path);
+
     }
 }
 
