@@ -24,7 +24,8 @@ public class SecurityConfig {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/auth/**", "/category/get**", "/product/get**", "/order/create").permitAll()  // Adjust based on public endpoints
+                        .requestMatchers("/auth/**", "/category/get**", "/product/get**", "/order/create").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()// Adjust based on public endpoints
                         .requestMatchers("/category/create", "/category/update/**", "/category/delete/**", "/product/create", "/product/update", "/product/delete/**","/user/**", "/order/update-item-status/**", "/order/filter").hasAuthority("ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

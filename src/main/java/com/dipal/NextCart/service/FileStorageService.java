@@ -25,7 +25,7 @@ public class FileStorageService {
     public String saveFile(MultipartFile file) {
         try {
             // Create the uploads directory if it doesn't exist
-            Path uploadPath = Paths.get(uploadDir);
+            Path uploadPath = Paths.get(uploadDir,"images");
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
@@ -38,7 +38,7 @@ public class FileStorageService {
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
             log.info("File saved successfully: {}", filePath);
-            return uniqueFilename;
+            return "/uploads/images/" + uniqueFilename;
 
         } catch (IOException ex) {
             log.error("Could not save file: {}", file.getOriginalFilename(), ex);
