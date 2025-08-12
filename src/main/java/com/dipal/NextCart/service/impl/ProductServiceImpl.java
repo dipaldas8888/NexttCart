@@ -41,7 +41,7 @@ public class ProductServiceImpl implements ProductService {
             validateProductInputs(categoryId, image, name, description, price);
 
             String imageFileName = fileStorageService.saveFile(image);
-            String imageUrl = "/uploads/images/" + imageFileName;
+            String imageUrl = imageFileName;
 
             Category category = categoryRepo.findById(categoryId)
                     .orElseThrow(() -> new NotFoundException("Category not found with ID: " + categoryId));
