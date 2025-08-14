@@ -1,48 +1,31 @@
 package com.dipal.NextCart.service;
 
-
-import com.dipal.NextCart.exception.FileStorageException;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.util.Map;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class FileStorageService {
 
-    @Value("${file.upload-dir}")
-    private String uploadDir;
+    private final Cloudinary cloudinary;
 
     public String saveFile(MultipartFile file) {
         try {
-            // Create the uploads directory if it doesn't exist
-            Path uploadPath = Paths.get(uploadDir,"images");
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
-            String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
-            String uniqueFilename = System.currentTimeMillis() + "_" + originalFilename;
-
-            Path filePath = uploadPath.resolve(uniqueFilename);
-
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            log.info("File saved successfully: {}", filePath);
-            return "/uploads/images/" + uniqueFilename;
-
-        } catch (IOException ex) {
-            log.error("Could not save file: {}", file.getOriginalFilename(), ex);
-            throw new FileStorageException("Could not save file: " + file.getOriginalFilename(), ex);
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            String url = (String) uploadResult.get("secure_url");
+            log.info("File uploaded to Cloudinary: {}", url);
+            return url;  // Return the full URL of the uploaded image
+        } catch (IOException e) {
+            log.error("Could not upload file to Cloudinary: {}", file.getOriginalFilename(), e);
+            throw new RuntimeException("Could not upload file: " + file.getOriginalFilename(), e);
         }
     }
 }

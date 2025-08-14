@@ -10,6 +10,7 @@ import com.dipal.NextCart.exception.FileStorageException;
 import com.dipal.NextCart.exception.NotFoundException;
 import com.dipal.NextCart.mapper.EntityDtoMapper;
 import com.dipal.NextCart.repository.CategoryRepo;
+import com.dipal.NextCart.repository.OrderItemRepo;
 import com.dipal.NextCart.repository.ProductRepo;
 import com.dipal.NextCart.service.FileStorageService;
 import com.dipal.NextCart.service.interfce.ProductService;
@@ -33,6 +34,7 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepo categoryRepo;
     private final EntityDtoMapper entityDtoMapper;
     private final FileStorageService fileStorageService;
+    private final OrderItemRepo orderItemRepo;
 
     @Override
     public Response createProduct(Long categoryId, MultipartFile image, String name,
@@ -40,8 +42,8 @@ public class ProductServiceImpl implements ProductService {
         try {
             validateProductInputs(categoryId, image, name, description, price);
 
-            String imageFileName = fileStorageService.saveFile(image);
-            String imageUrl = imageFileName;
+            // Upload image to Cloudinary and get URL
+            String imageUrl = fileStorageService.saveFile(image);
 
             Category category = categoryRepo.findById(categoryId)
                     .orElseThrow(() -> new NotFoundException("Category not found with ID: " + categoryId));
@@ -50,7 +52,7 @@ public class ProductServiceImpl implements ProductService {
             product.setName(name);
             product.setDescription(description);
             product.setPrice(price);
-            product.setImageUrl(imageUrl);
+            product.setImageUrl(imageUrl);  // Save Cloudinary URL here
             product.setCategory(category);
 
             Product savedProduct = productRepo.save(product);
@@ -67,9 +69,10 @@ public class ProductServiceImpl implements ProductService {
             throw e;
         } catch (Exception e) {
             log.error("Error creating product: ", e);
-            throw new FileStorageException("Error creating product: " + e.getMessage(), e);
+            throw new RuntimeException("Error creating product: " + e.getMessage(), e);
         }
     }
+
 
     @Override
     public Response updateProduct(Long productId, Long categoryId, MultipartFile image,
@@ -85,11 +88,10 @@ public class ProductServiceImpl implements ProductService {
             }
 
             if (image != null && !image.isEmpty()) {
-                String imageFileName = fileStorageService.saveFile(image);
-                String imageUrl = "/uploads/images/" + imageFileName;
-                // TODO: Delete old image file if exists
+                String imageUrl = fileStorageService.saveFile(image);
                 product.setImageUrl(imageUrl);
             }
+
 
             if (name != null && !name.trim().isEmpty()) {
                 product.setName(name);
@@ -119,32 +121,21 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+
     @Override
     public Response deleteProduct(Long productId) {
-        try {
-            Product product = productRepo.findById(productId)
-                    .orElseThrow(() -> new NotFoundException("Product not found with ID: " + productId));
+        Product product = productRepo.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Product not found with ID: " + productId));
 
-            // TODO: Delete associated image file
-            String imageUrl = product.getImageUrl();
-            if (imageUrl != null) {
+        product.setDeleted(true);
+        productRepo.save(product);
 
-            }
-
-            productRepo.delete(product);
-
-            return Response.builder()
-                    .status(200)
-                    .message("Product deleted successfully")
-                    .build();
-        } catch (NotFoundException e) {
-            log.error("Product not found error: {}", e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            log.error("Error deleting product: ", e);
-            throw new RuntimeException("Error deleting product: " + e.getMessage());
-        }
+        return Response.builder()
+                .status(200)
+                .message("Product soft deleted successfully")
+                .build();
     }
+
 
     @Override
     public Response getProductById(Long productId) {
@@ -164,23 +155,20 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+
     @Override
     public Response getAllProducts() {
-        try {
-            List<ProductDTO> productList = productRepo.findAll(Sort.by(Sort.Direction.DESC, "id"))
-                    .stream()
-                    .map(entityDtoMapper::mapProductToDtoBasic)
-                    .collect(Collectors.toList());
+        List<ProductDTO> productList = productRepo.findByDeletedFalse()
+                .stream()
+                .map(entityDtoMapper::mapProductToDtoBasic)
+                .collect(Collectors.toList());
 
-            return Response.builder()
-                    .status(200)
-                    .productList(productList)
-                    .build();
-        } catch (Exception e) {
-            log.error("Error fetching all products: ", e);
-            throw new RuntimeException("Error fetching products: " + e.getMessage());
-        }
+        return Response.builder()
+                .status(200)
+                .productList(productList)
+                .build();
     }
+
 
     @Override
     public Response getProductsByCategory(Long categoryId) {
